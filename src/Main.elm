@@ -5,18 +5,26 @@ import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 
 
-type alias Model = { counters: List Int }
+type alias Model =
+    { counters : List Int
+    }
 
 
 init : Model
-init = { counters = [0,0,0,0,0,0,0,0,0,0]}
+init =
+    { counters = [ 0, 0, 0, 0, 0, 0, 0 ]
+    }
 
--- update
+
+
+-- Update
 
 
 type Msg
     = Increment Int
     | Decrement Int
+    | IncrementAll
+    | DecrementAll
 
 
 update : Msg -> Model -> Model
@@ -24,14 +32,14 @@ update msg model =
     case msg of
         Increment indexToChange ->
             let
-                updateElement index cnt = 
+                updateElement index cnt =
                     if index == indexToChange then
                         cnt + 1
                     else
                         cnt
             in
                 { model | counters = List.indexedMap updateElement model.counters }
-            
+
         Decrement indexToChange ->
             let
                 updateElement index cnt =
@@ -42,6 +50,20 @@ update msg model =
             in
                 { model | counters = List.indexedMap updateElement model.counters }
 
+        IncrementAll ->
+            let
+                increment count =
+                    count + 1
+            in
+                { model | counters = List.map increment model.counters }
+
+        DecrementAll ->
+            let
+                increment count =
+                    count - 1
+            in
+                { model | counters = List.map increment model.counters }
+
 
 
 -- View
@@ -51,19 +73,29 @@ view : Model -> Html Msg
 view model =
     main_ []
         [ h1 [] [ text "Counter" ]
+        , div [ class "sum" ] [ text ("Sum: " ++ toString (List.sum model.counters)) ]
+        div [ class "counter" ]
+            [ button [ onClick (IncrementAll) ] [ text "+" ]
+            , button [ onClick (DecrementAll) ] [ text "-" ]
+            ]
         , div [ class "counters" ]
             (List.indexedMap viewCounter model.counters)
         ]
 
+
 viewCounter : Int -> Int -> Html Msg
 viewCounter index count =
     div [ class "counter" ]
-            [ button [ onClick (Increment index) ] [ text "+" ]
-            , text (toString count)
-            , button [ onClick (Decrement index) ] [ text "-" ]
-            ] 
-        
+        [ button [ onClick (Increment index) ] [ text "+" ]
+        , text (toString count)
+        , button [ onClick (Decrement index) ] [ text "-" ]
+        ]
+
 
 main : Program Never Model Msg
 main =
-    Html.beginnerProgram { model = init, view = view, update = update }
+    Html.beginnerProgram
+        { model = init
+        , view = view
+        , update = update
+        }
